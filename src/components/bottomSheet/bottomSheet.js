@@ -55,7 +55,7 @@ function MdBottomSheetDirective() {
  * var app = angular.module('app', ['ngMaterial']);
  * app.controller('MyController', function($scope, $mdBottomSheet) {
  *   $scope.openBottomSheet = function() {
- *     $mdBottomSheet.show({
+ *     $mdBottomSheet.custom().show({
  *       template: '<md-bottom-sheet>Hello!</md-bottom-sheet>'
  *     });
  *   };
@@ -65,7 +65,7 @@ function MdBottomSheetDirective() {
 
  /**
  * @ngdoc method
- * @name $mdBottomSheet#show
+ * @name $mdBottomSheetInstance#show
  *
  * @description
  * Show a bottom sheet with the specified options.
@@ -120,13 +120,20 @@ function MdBottomSheetDirective() {
 function MdBottomSheet($$interimElement, $animate, $mdEffects, $timeout, $$rAF, $compile, $mdTheming) {
   var backdrop;
 
-  var $mdBottomSheet;
-  return $mdBottomSheet = $$interimElement({
+  var $mdBottomSheet = $$interimElement({
     themable: true,
     targetEvent: null,
     onShow: onShow,
     onRemove: onRemove,
   });
+
+  var publicApi = {
+    custom: $mdBottomSheet.make,
+    hide: $mdBottomSheet.hide,
+    cancel: $mdBottomSheet.cancel
+  };
+
+  return publicApi;
 
   function onShow(scope, element, options) {
     // Add a backdrop that will close on click
