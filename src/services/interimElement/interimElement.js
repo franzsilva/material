@@ -58,6 +58,7 @@ function InterimElementFactory($q, $rootScope, $timeout, $rootElement, $animate,
 
     var stack = [];
 
+
     defaults = angular.extend({
       onShow: function(scope, $el, options) {
         return $animate.enter($el, options.parent);
@@ -67,33 +68,60 @@ function InterimElementFactory($q, $rootScope, $timeout, $rootElement, $animate,
       },
     }, defaults || {});
 
+    // Store extra chainable methods for use later (see make)
+    var extraConfigMethods = defaults.configMethods || [];
+    delete defaults.configMethods;
+
     var service;
+
     return service = {
-      show: show,
+      make: make,
       hide: hide,
       cancel: cancel
     };
 
-    /*
+    /**
      * @ngdoc method
-     * @name $$interimElement.$service#show
+     * @name $$interimElement.$service#make
      * @kind function
      *
      * @description
-     * Compiles and inserts an element into the DOM.
+     * Creates a new interim element, not yet inserted
      *
-     * @param {Object} options Options object to compile with.
+     * @param {Object} options Options object to set on the interim element.
      *
-     * @returns {Promise} Promise that will resolve when the service
-     * has `#close()` or `#cancel()` called.
+     * @returns {Object} Publicly facing API for an interim element, which has show
+     * and chainable configuration methods.
      *
      */
-    function show(options) {
+
+    function make(options) {
+      angular.extend(options || {}, defaults);
+      var interimElement = new InterimElement(options);
+      var publicApi = {
+        show: angular.bind(null, show, interimElement)
+      };
+
+      var configMethods = [
+        'controller', 'controllerAs', 'template', 'templateUrl', 'transformTemplate',
+        'resolve', 'themable', 'onShow', 'onRemove'
+      ];
+      configMethods.concat(extraConfigMethods).forEach(function(method) {
+        publicApi[method] = function(opt) {
+          interimElement.options[method] = opt;
+          return publicApi;
+        };
+      });
+      return publicApi;
+    }
+
+    function show(interimElement, options) {
       if (stack.length) {
         service.hide();
       }
 
-      var interimElement = new InterimElement(options);
+      angular.extend(interimElement.options, options);
+
       stack.push(interimElement);
       return interimElement.show().then(function() {
         return interimElement.deferred.promise;

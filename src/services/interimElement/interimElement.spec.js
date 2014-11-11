@@ -21,64 +21,82 @@ describe('$$interimElement service', function() {
     });
   }));
 
-  describe('instance', function() {
+  describe('a service', function() {
     var Service;
     beforeEach(inject(function($$interimElement) {
       Service = $$interimElement();
     }));
 
-    describe('#show', function() {
-      it('inherits default options', inject(function($$interimElement) {
-        var defaults = { templateUrl: 'testing.html' };
-        Service = $$interimElement(defaults);
-        Service.show();
-        expect($compilerSpy.mostRecentCall.args[0].templateUrl).toBe('testing.html');
-      }));
-
-      it('forwards options to $mdCompiler', inject(function($$interimElement) {
-        var options = {template: '<testing>'};
-        Service.show(options);
-        expect($compilerSpy.mostRecentCall.args[0].template).toBe('<testing>');
-      }));
-
-      it('supports theming', inject(function($$interimElement, $rootScope) {
-        Service.show({themable: true});
-        $rootScope.$digest();
-        expect($themingSpy).toHaveBeenCalled();
-      }));
-
-      it('calls hide after hideDelay', inject(function($animate, $timeout, $rootScope) {
-        var hideSpy = spyOn(Service, 'hide').andCallThrough();
-        Service.show({hideDelay: 1000});
-        $rootScope.$digest();
-        $animate.triggerCallbacks();
-        $timeout.flush();
-        expect(hideSpy).toHaveBeenCalled();
-      }));
-
-      it('calls onRemove', inject(function($rootScope) {
-        var onRemoveCalled = false;
-        Service.show({
-          template: '<some-element>',
-          isPassingOptions: true,
-          onRemove: onRemove
-        });
-        $rootScope.$digest();
-        Service.hide();
-        $rootScope.$digest();
-        expect(onRemoveCalled).toBe(true);
-
-        function onRemove(scope, el, options) {
-          onRemoveCalled = true;
-          expect(options.isPassingOptions).toBe(true);
-          expect(el[0]).toBeTruthy();
-        }
-      }));
-
-      it('returns a promise', inject(function($$interimElement) {
-        expect(typeof Service.show().then).toBe('function');
-      }));
+    it('allows specifying of additional instance config methods', function() {
+      Service = $$interimElement({configMethods: 'hello'});
+      var instance = Service.make();
+      expect(instance.hello('World')).toBe(instance);
+      instance.show();
+      expect($compilerSpy.mostRecentCall.args[0].hello).toBe('World');
     });
+
+    ddescribe('#create', function() {
+      describe('instance#show', function() {
+        it('inherits default options', inject(function($$interimElement) {
+          var defaults = { templateUrl: 'testing.html' };
+          Service = $$interimElement(defaults);
+          Service.make().show();
+          expect($compilerSpy.mostRecentCall.args[0].templateUrl).toBe('testing.html');
+        }));
+
+        it('inherits make options', inject(function($$interimElement) {
+          var defaults = { templateUrl: 'testing.html' };
+          Service = $$interimElement();
+          Service.make(defaults).show();
+          expect($compilerSpy.mostRecentCall.args[0].templateUrl).toBe('testing.html');
+        }));
+
+        it('forwards options to $mdCompiler', inject(function($$interimElement) {
+          var options = {template: 'testing'};
+          Service.make().show(options);
+          expect($compilerSpy.mostRecentCall.args[0].template).toBe('testing');
+        }));
+
+        it('supports theming', inject(function($$interimElement, $rootScope) {
+          Service.make().show({themable: true});
+          $rootScope.$digest();
+          expect($themingSpy).toHaveBeenCalled();
+        }));
+
+        it('calls hide after hideDelay', inject(function($animate, $timeout, $rootScope) {
+          var hideSpy = spyOn(Service, 'hide').andCallThrough();
+          Service.make().show({hideDelay: 1000});
+          $rootScope.$digest();
+          $animate.triggerCallbacks();
+          $timeout.flush();
+          expect(hideSpy).toHaveBeenCalled();
+        }));
+
+        it('calls onRemove', inject(function($rootScope) {
+          var onRemoveCalled = false;
+          Service.make().show({
+            template: '<some-element />',
+            isPassingOptions: true,
+            onRemove: onRemove
+          });
+          $rootScope.$digest();
+          Service.hide();
+          $rootScope.$digest();
+          expect(onRemoveCalled).toBe(true);
+
+          function onRemove(scope, el, options) {
+            onRemoveCalled = true;
+            expect(options.isPassingOptions).toBe(true);
+            expect(el[0]).toBeTruthy();
+          }
+        }));
+
+        it('returns a promise', inject(function($$interimElement) {
+          expect(typeof Service.make().show().then).toBe('function');
+        }));
+      });
+    });
+
 
     describe('#hide', function() {
       it('calls onRemove', inject(function($rootScope) {
