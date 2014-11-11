@@ -129,11 +129,9 @@ function mdCompilerService($q, $http, $injector, $compile, $controller, $templat
           if (controller) {
             var ctrl = $controller(controller, locals);
             if (bindToController && options.locals) {
-              for (var key in options.locals) {
-                if (options.locals.hasOwnProperty(key)) {
-                  ctrl[key] = options.locals[key];
-                }
-              }
+              angular.forEach(options.locals, function(val, key) {
+                ctrl[key] = val;
+              });
             }
             //See angular-route source for this logic
             element.data('$ngControllerController', ctrl);

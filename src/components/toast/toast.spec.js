@@ -1,4 +1,4 @@
-describe('$mdToast service', function() {
+xdescribe('$mdToast service', function() {
   beforeEach(module('material.components.toast', 'ngAnimateMock', function($provide) {
   }));
 

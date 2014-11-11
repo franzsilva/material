@@ -129,7 +129,9 @@ function MdDialogDirective($$rAF, $mdTheming) {
  *     will be injected with the local `$hideDialog`, which is a function used to hide the dialog.
  *   - `locals` - `{object=}`: An object containing key/value pairs. The keys will be used as names
  *     of values to inject into the controller. For example, `locals: {three: 3}` would inject
- *     `three` into the controller, with the value 3.
+ *     `three` into the controller, with the value 3. If `bindToController` is true, they will be 
+ *     coppied to the ctrl instead.
+ *   - `bindToController` - `bool`: bind the locals to the controller, instead of passing them in
  *   - `resolve` - `{object=}`: Similar to locals, except it takes promises as values, and the
  *     toast will not open until all of the promises resolve.
  *   - `controllerAs` - `{string=}`: An alias to assign the controller to on the scope.
@@ -166,8 +168,11 @@ function MdDialogDirective($$rAF, $mdTheming) {
 
 function MdDialogService($timeout, $rootElement, $compile, $mdEffects, $animate, $mdAria, $$interimElement, $mdUtil, $mdConstant, $mdTheming) {
 
-  var $dialogService;
-  return $dialogService = $$interimElement({
+  var DIALOG_CONFIG_METHODS = [
+    'hasBackdrop', 'clickOutsideToClose', 'escapeToClose', 'targetEvent',
+  ]; 
+  var $dialogService = $$interimElement({
+    configMethods: DIALOG_CONFIG_METHODS,
     hasBackdrop: true,
     isolateScope: true,
     onShow: onShow,
@@ -180,6 +185,80 @@ function MdDialogService($timeout, $rootElement, $compile, $mdEffects, $animate,
     }
   });
 
+  // Preconfigured version for an alert
+  var ALERT_OPTIONS = ['title', 'content', 'ariaLabel', 'ok'];
+  function alertDialog(dialogOptions) {
+    dialogOptions = dialogOptions || {};
+
+    var instance = $dialogService.make({
+      template: [
+        '<md-dialog aria-label="{{dialog.label}}">',
+          '<md-content>',
+            '<h2>{{ dialog.title }}</h2>',
+            '<p>{{ dialog.content }}</p>',
+          '</md-content>',
+          '<div class="md-actions" layout="horizontal" layout-align="end">',
+            '<md-button ng-if="dialog.$type == \'confirm\'" ng-click="dialog.abort()">{{ dialog.cancel }}</md-button>',
+            '<md-button ng-click="dialog.hide()" class="md-primary">{{ dialog.ok }}</md-button>',
+          '</div>',
+        '</md-dialog>'
+      ].join(''),
+      controller: function mdDialogCtrl() { 
+        this.hide = function() {
+          $dialogService.hide(true);
+        };
+        this.abort = function() {
+          $dialogService.cancel();
+        };
+      },
+      controllerAs: 'dialog',
+      bindToController: true,
+      locals: dialogOptions
+    });
+    
+    // Return a limited API for consumption
+    var api  = {
+      show: instance.show
+    };
+    // Make our API inherit some methods from instance
+    ['show'].concat(DIALOG_CONFIG_METHODS).forEach(function(method) {
+      api[method] = function() {
+        var res = instance[method].apply(instance, arguments);
+        if (res == instance) return api;
+        return res;
+      };
+    });
+    ALERT_OPTIONS.forEach(function(method) {
+      api[method] = function(val) { dialogOptions[method] = val; return api; };
+    });
+    return api;
+  }
+
+  var CONFIRM_OPTIONS = ['cancel'];
+  function confirmDialog(dialogOptions) {
+    dialogOptions = dialogOptions || {};
+    dialogOptions.$type = 'confirm';
+
+    var api = alertDialog(dialogOptions);
+
+    api.cancel = function(cancel) {
+      dialogOptions.cancel = cancel;
+      return api;
+    };
+    
+    return api;
+  }
+
+  var publicApi;
+  return publicApi = {
+    custom: $dialogService.make,
+    confirm: confirmDialog,
+    alert: alertDialog,
+    hide: $dialogService.hide,
+    cancel: $dialogService.cancel
+  };
+
+  // On show method for dialogs
   function onShow(scope, element, options) {
     // Incase the user provides a raw dom element, always wrap it in jqLite
     options.parent = angular.element(options.parent);
@@ -236,6 +315,7 @@ function MdDialogService($timeout, $rootElement, $compile, $mdEffects, $animate,
 
   }
 
+  // On remove function for all dialogs
   function onRemove(scope, element, options) {
 
     if (options.backdrop) {
@@ -270,5 +350,9 @@ function MdDialogService($timeout, $rootElement, $compile, $mdEffects, $animate,
     $mdAria.expectAsync(element, 'aria-label', function() {
       return $mdUtil.stringFromTextBody(dialogContent.text(), 3);
     });
+  }
+
+  // Make obj have methods that will store the value in store and return obj
+  function makeChainableOptions(obj, store, methods) {
   }
 }

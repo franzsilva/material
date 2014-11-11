@@ -27,15 +27,15 @@ describe('$$interimElement service', function() {
       Service = $$interimElement();
     }));
 
-    it('allows specifying of additional instance config methods', function() {
+    it('allows specifying of additional instance config methods', inject(function($$interimElement) {
       Service = $$interimElement({configMethods: 'hello'});
       var instance = Service.make();
       expect(instance.hello('World')).toBe(instance);
       instance.show();
       expect($compilerSpy.mostRecentCall.args[0].hello).toBe('World');
-    });
+    }));
 
-    ddescribe('#create', function() {
+    describe('#create', function() {
       describe('instance#show', function() {
         it('inherits default options', inject(function($$interimElement) {
           var defaults = { templateUrl: 'testing.html' };
@@ -101,8 +101,8 @@ describe('$$interimElement service', function() {
     describe('#hide', function() {
       it('calls onRemove', inject(function($rootScope) {
         var onRemoveCalled = false;
-        Service.show({
-          template: '<some-element>',
+        Service.make().show({
+          template: '<some-element />',
           passingOptions: true,
           onRemove: onRemove
         });
@@ -121,7 +121,7 @@ describe('$$interimElement service', function() {
       it('resolves the show promise', inject(function($animate, $rootScope) {
         var resolved = false;
 
-        Service.show().then(function(arg) {
+        Service.make().show().then(function(arg) {
           expect(arg).toBe('test');
           resolved = true;
         });
@@ -137,8 +137,8 @@ describe('$$interimElement service', function() {
     describe('#cancel', function() {
       it('calls onRemove', inject(function($rootScope) {
         var onRemoveCalled = false;
-        Service.show({
-          template: '<some-element>',
+        Service.make().show({
+          template: '<some-element />',
           passingOptions: true,
           onRemove: onRemove
         });
@@ -157,7 +157,7 @@ describe('$$interimElement service', function() {
       it('rejects the show promise', inject(function($animate, $rootScope) {
         var rejected = false;
 
-        Service.show().then(undefined, function(arg) {
+        Service.make().show().then(undefined, function(arg) {
           expect(arg).toBe('test');
           rejected = true;
         });
@@ -169,7 +169,6 @@ describe('$$interimElement service', function() {
         expect(rejected).toBe(true);
       }));
     });
-
   });
 });
 
