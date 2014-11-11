@@ -99,6 +99,19 @@ describe('$mdCompiler service', function() {
         data.link(scope);
         expect(scope.myControllerAs).toBe(data.element.controller());
       }));
+
+      it('should work with bindToController', inject(function($rootScope) {
+        var data = compile({
+          template: 'hello',
+          controller: function() { },
+          controllerAs: 'ctrl',
+          bindToController: true,
+          locals: { name: 'Bob' }
+        });
+        var scope = $rootScope.$new();
+        data.link(scope);
+        expect(scope.ctrl.name).toBe('Bob');
+      }));
     });
   });
 });
