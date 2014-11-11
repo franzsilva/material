@@ -73,41 +73,54 @@ function MdDialogDirective($$rAF, $mdTheming) {
  * var app = angular.module('app', ['ngMaterial']);
  * app.controller('MyController', function($scope, $mdDialog) {
  *   $scope.openDialog = function($event) {
- *     $mdDialog.show({
- *       targetEvent: $event,
- *       template:
- *         '<md-dialog>' +
- *         '  <md-content>Hello {{ userName }}!</md-content>' +
- *         '  <div class="md-actions">' +
- *         '    <md-button ng-click="closeDialog()">' +
- *         '      Close' +
- *         '    </md-button>' +
- *         '  </div>' +
- *         '</md-dialog>',
- *       controller: 'DialogController',
- *       onComplete: afterShowAnimation,
- *       locals: { name: 'Bobby' }
- *     });
- *
- *     // When the 'enter' animation finishes...
- *     function afterShowAnimation(scope, element, options) {
- *        // post-show code here: DOM element focus, etc.
- *     }
- * });
- * app.controller('DialogController', function($scope, $mdDialog, name) {
- *   $scope.userName = name;
- *   $scope.closeDialog = function() {
- *     $mdDialog.hide();
- *   };
- * });
+ *    $mdDialog.alert()
+ *      .title('Hello ' + $scope.userName)
+ *      .content('This is an example of how easy dialogs can be!');
+ *    .show();
+ *   });
  * </hljs>
+ */
+
+ /**
+ * @ngdoc method
+ * @name $mdDialog#alert
+ *
+ * @description
+ * Builds a preconfigured dialog with the specified message.
+ *
+ * @returns {obj} a `$mdDialogInstance` with the chainable configuration methods for shows' options (see below):
+ *
+ * Additionally, it supports the following methods:
+ *
+ * - $mdDialogInstance#title(string) - sets title to string
+ * - $mdDialogInstance#content(string) - sets content / message to string
+ * - $mdDialogInstance#ok(string) - sets okay button text to string
+ *
+ */
+
+ /**
+ * @ngdoc method
+ * @name $mdDialog#confirm
+ *
+ * @description
+ * Builds a preconfigured dialog with the specified message. You can call show and the promise returned
+ * will be resolved only if the user clicks the confirm action on the dialog.
+ *
+ * @returns {obj} a `$mdDialogInstance` with the chainable configuration methods for shows' options (see below):
+ *
+ * Additionally, it supports the following methods:
+ *
+ * - $mdDialogInstance#title(string) - sets title to string
+ * - $mdDialogInstance#content(string) - sets content / message to string
+ * - $mdDialogInstance#ok(string) - sets okay button text to string
+ * - $mdDialogInstance#cancel(string) - sets cancel button text to string
  *
  */
 
 /**
  *
  * @ngdoc method
- * @name $mdDialog#show
+ * @name $mdDialogInstance#show
  *
  * @description
  * Show a dialog with the specified options.
