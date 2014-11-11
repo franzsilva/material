@@ -32,11 +32,11 @@ function MdToastDirective() {
  * @module material.components.toast
  *
  * @description
- * `$mdToast` opens a toast nofication on any position on the screen with an optional
- * duration, and provides a simple promise API.
+ * `$mdToast` is a service to butild a toast nofication on any position 
+ * on the screen with an optional duration, and provides a simple promise API.
  *
  *
- * ### Restrictions
+ * ### Restrictions on custom toasts
  * - The toast's template must have an outer `<md-toast>` element.
  * - For a toast action, use element with class `md-action`.
  * - Add the class `md-capsule` for curved corners.
@@ -54,10 +54,7 @@ function MdToastDirective() {
  * var app = angular.module('app', ['ngMaterial']);
  * app.controller('MyController', function($scope, $mdToast) {
  *   $scope.openToast = function($event) {
- *     $mdToast.show({
- *       template: '<md-toast>Hello!</md-toast>',
- *       hideDelay: 3000
- *     });
+ *     $mdToast.basic('Hello!').show();
  *   };
  * });
  * </hljs>
@@ -65,10 +62,30 @@ function MdToastDirective() {
 
  /**
  * @ngdoc method
- * @name $mdToast#show
+ * @name $mdToast#basic
  *
  * @description
- * Show a toast dialog with the specified options.
+ * Builds a preconfigured toast with the specified message.
+ *
+ * @param {string} message A message to display
+ * @returns {obj} a `$mdToastInstance` with the chainable configuration methods for shows' options (see below):
+ */
+
+ /**
+ * @ngdoc method
+ * @name $mdToast#custom
+ *
+ * @description
+ * Creates a custom `$mdToastInstance` that you can configure.
+ *
+ * @returns {obj} a `$mdToastInstance` with the chainable configuration methods for shows' options (see below):
+ */
+
+ /**
+ * @ngdoc method
+ * @name $mdToastInstance#show
+ *
+ * @description Shows the toast.
  *
  * @param {object} options An options object, with the following properties:
  *
@@ -94,7 +111,7 @@ function MdToastDirective() {
  *   - `controllerAs` - `{string=}`: An alias to assign the controller to on the scope.
  *
  * @returns {promise} A promise that can be resolved with `$mdToast.hide()` or
- * rejected with `$mdBottomSheet.cancel()`.
+ * rejected with `$mdToast.cancel()`.
  */
 
 /**
@@ -102,7 +119,7 @@ function MdToastDirective() {
  * @name $mdToast#hide
  *
  * @description
- * Hide the existing toast and resolve the promise returned from `$mdToast.show()`.
+ * Hide an existing toast and resolve the promise returned from `$mdToastInstance.show()`.
  *
  * @param {*=} response An argument for the resolved promise.
  *
@@ -114,7 +131,7 @@ function MdToastDirective() {
  *
  * @description
  * Hide the existing toast and reject the promise returned from 
- * `$mdToast.show()`.
+ * `$mdToastInstance.show()`.
  *
  * @param {*=} response An argument for the rejected promise.
  *
