@@ -221,11 +221,10 @@ function MdDialogService($timeout, $rootElement, $compile, $mdEffects, $animate,
       show: instance.show
     };
     // Make our API inherit some methods from instance
-    ['show'].concat(DIALOG_CONFIG_METHODS).forEach(function(method) {
+    DIALOG_CONFIG_METHODS.forEach(function(method) {
       api[method] = function() {
-        var res = instance[method].apply(instance, arguments);
-        if (res == instance) return api;
-        return res;
+        instance[method].apply(instance, arguments);
+        return api;
       };
     });
     ALERT_OPTIONS.forEach(function(method) {

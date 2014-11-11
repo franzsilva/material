@@ -329,12 +329,12 @@ $whiteframe-zindex-z4: 4;
 $whiteframe-shadow-z5: 0px 27px 24px 0 rgba(0,0,0,0.2);
 $whiteframe-zindex-z5: 5;
 $z-index-dialog: 10;
-$z-index-toast: 9;
-$z-index-sidenav: 8;
-$z-index-backdrop: 7;
-$z-index-tooltip: 6;
+$z-index-tooltip: 9;
+$z-index-toast: 8;
+$z-index-bottom-sheet: 8;
+$z-index-sidenav: 6;
+$z-index-backdrop: 5;
 $z-index-fab: 2;
-$z-index-bottom-sheet: $z-index-backdrop + 1;
 $backdrop-color: rgba(0,0,0,0.3);
 $bottom-sheet-color-palette: $background-color-palette !default;
 $bottom-sheet-background-color: map-get($bottom-sheet-color-palette, '50') !default;
@@ -354,8 +354,8 @@ $button-warn-raised-color: $primary-color-palette-contrast-color !default;
 $button-warn-raised-background-color: map-get($button-warn-color-palette, '500') !default;
 $button-warn-raised-hover-background-color: map-get($button-warn-color-palette, '700') !default;
 $button-flat-color-palette: $background-color-palette !default;
-$button-disabled-color: map-get($button-flat-color-palette, '500') !default;
-$button-disabled-background-color: rgba(map-get($button-flat-color-palette, '500'), 0.145) !default;
+$button-disabled-color: $foreground-tertiary-color !default;
+$button-disabled-background-color: transparent !default;
 $button-hover-background-color: rgba(map-get($button-flat-color-palette, '500'), 0.20) !default;
 $button-raised-color-palette: $button-flat-color-palette !default;
 $button-raised-background-color: rgba(map-get($button-raised-color-palette, '500'), 0.185) !default;
@@ -529,6 +529,7 @@ $tooltip-background-color: rgba(black, 0.52);
 //--------------------------------------------
 
 
+
 @mixin margin-selectors($before:1em, $after:1em, $start:0px, $end:0px) {
   -webkit-margin-before: $before;
   -webkit-margin-after: $after;
@@ -552,6 +553,7 @@ $tooltip-background-color: rgba(black, 0.52);
 
 md-backdrop.md-opaque.md-#{$theme-name}-theme {
   background-color: $backdrop-color;
+  position:absolute
 }
 
 
@@ -579,18 +581,12 @@ md-bottom-sheet.md-#{$theme-name}-theme {
 
 
 
-md-button.md-#{$theme-name}-theme {
+.md-button.md-#{$theme-name}-theme {
   border-radius: $button-border-radius;
 
-  &[disabled] {
-    background-color: $button-disabled-background-color !important;
-    color: $button-disabled-color !important;
-    fill: $button-disabled-color !important;
-    cursor: auto;
-  }
-
   &:not([disabled]) {
-    &:hover, &.focus {
+    &:hover, 
+    &:focus {
       background-color: $button-hover-background-color;
     }
   }
@@ -609,11 +605,13 @@ md-button.md-#{$theme-name}-theme {
     fill: $button-warn-color;
   }
 
-  &.md-raised, &.md-fab {
+  &.md-raised, 
+  &.md-fab {
     background-color: $button-raised-background-color;
 
     &:not([disabled]) {
-      &:hover, &.focus {
+      &:hover, 
+      &:focus {
         background-color: $button-raised-hover-background-color;
       }
     }
@@ -622,7 +620,8 @@ md-button.md-#{$theme-name}-theme {
       color: $button-primary-raised-color;
       background-color: $button-primary-raised-background-color;
       &:not([disabled]) {
-        &:hover, &.focus {
+        &:hover,
+        &:focus {
           background-color: $button-primary-raised-hover-background-color;
         }
       }
@@ -632,11 +631,21 @@ md-button.md-#{$theme-name}-theme {
       color: $button-warn-raised-color;
       background-color: $button-warn-raised-background-color;
       &:not([disabled]) {
-        &:hover, &.focus {
+        &:hover, 
+        &:focus {
           background-color: $button-warn-raised-hover-background-color;
         }
       }
     }
+  }
+
+  &[disabled],
+  &.md-raised[disabled],
+  &.md-fab[disabled] {
+    color: $button-disabled-color;
+    fill: $button-disabled-color;
+    background-color: $button-disabled-background-color;
+    cursor: not-allowed;
   }
 }
 
@@ -921,7 +930,7 @@ md-toast.md-#{$theme-name}-theme {
   background-color: $toast-background-color;
   color: $toast-text-color;
 
-  md-button {
+  .md-button {
     color: $toast-text-color;
   }
 

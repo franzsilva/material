@@ -117,7 +117,7 @@ function InterimElementFactory($q, $rootScope, $timeout, $rootElement, $animate,
 
     function show(interimElement, options) {
       if (stack.length) {
-        service.hide();
+        service.cancel();
       }
 
       angular.extend(interimElement.options, options);
@@ -206,7 +206,7 @@ function InterimElementFactory($q, $rootScope, $timeout, $rootElement, $animate,
 
             function startHideTimeout() {
               if (options.hideDelay) {
-                hideTimeout = $timeout(service.hide, options.hideDelay) ;
+                hideTimeout = $timeout(service.cancel, options.hideDelay) ;
               }
             }
           });

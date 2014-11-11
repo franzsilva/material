@@ -36,14 +36,14 @@ describe('$mdDialog', function() {
         resolved = true;
       });
       $rootScope.$apply();
-      var title = parent.find('h2');
+      var title = angular.element(parent[0].querySelector('h2'));
       expect(title.text()).toBe('Title');
       var content = parent.find('p');
       expect(content.text()).toBe('Hello world');
       var buttons = parent.find('md-button');
       expect(buttons.length).toBe(1);
       expect(buttons.eq(0).text()).toBe('Next');
-      buttons.eq(0).trigger('click');
+      buttons.eq(0).triggerHandler('click');
       $rootScope.$apply();
       $animate.triggerCallbacks();
       expect(parent.find('h2').length).toBe(0);
@@ -88,7 +88,7 @@ describe('$mdDialog', function() {
       expect(buttons.length).toBe(2);
       expect(buttons.eq(0).text()).toBe('Next');
       expect(buttons.eq(1).text()).toBe('Forget it');
-      buttons.eq(1).trigger('click');
+      buttons.eq(1).triggerHandler('click');
       $rootScope.$digest();
       $animate.triggerCallbacks();
       expect(parent.find('h2').length).toBe(0);
@@ -145,7 +145,7 @@ describe('$mdDialog', function() {
 
       $rootScope.$apply();
 
-      var container = parent.find('.md-dialog-container');
+      var container = parent[0].querySelectorAll('.md-dialog-container');
       expect(container.length).toBe(1);
     }));
 
@@ -161,7 +161,7 @@ describe('$mdDialog', function() {
       $timeout.flush();
       expect(parent.find('md-dialog').length).toBe(1);
 
-      TestUtil.triggerEvent($rootElement, 'keyup', {
+      $rootElement.triggerHandler({type: 'keyup',
         keyCode: $mdConstant.KEY_CODE.ESCAPE 
       });
 
@@ -180,7 +180,7 @@ describe('$mdDialog', function() {
       $rootScope.$apply();
       expect(parent.find('md-dialog').length).toBe(1);
 
-      TestUtil.triggerEvent($rootElement, 'keyup', { keyCode: $mdConstant.KEY_CODE.ESCAPE });
+      $rootElement.triggerHandler({ type: 'keyup', keyCode: $mdConstant.KEY_CODE.ESCAPE });
 
       $timeout.flush();
       $animate.triggerCallbacks();
@@ -200,10 +200,8 @@ describe('$mdDialog', function() {
       expect(parent.find('md-dialog').length).toBe(1);
       $timeout.flush();
 
-      var container = parent.find('.md-dialog-container');
-      TestUtil.triggerEvent(container, 'click', {
-        target: container[0]
-      });
+      var container = angular.element(parent[0].querySelectorAll('.md-dialog-container'));
+      container.triggerHandler('click');
       $timeout.flush();
 
       expect(parent.find('md-dialog').length).toBe(0);
@@ -221,14 +219,13 @@ describe('$mdDialog', function() {
       $rootScope.$apply();
       expect(parent.find('md-dialog').length).toBe(1);
 
-      var container = parent.find('.md-dialog-container');
-      TestUtil.triggerEvent(container, 'click', {
-        target: container[0]
-      });
+      var container = angular.element(parent[0].querySelector('.md-dialog-container'));
+      
+      container.triggerHandler('click');
       $timeout.flush();
       $animate.triggerCallbacks();
 
-      expect(parent.find('md-dialog').length).toBe(1);
+      expect(parent[0].querySelectorAll('md-dialog').length).toBe(1);
     }));
 
     it('should hasBackdrop == true', inject(function($mdDialog, $animate, $rootScope) {
@@ -255,8 +252,8 @@ describe('$mdDialog', function() {
       });
 
       $rootScope.$apply();
-      expect(parent.find('md-dialog').length).toBe(1);
-      expect(parent.find('md-backdrop').length).toBe(0);
+      expect(parent[0].querySelectorAll('md-dialog').length).toBe(1);
+      expect(parent[0].querySelectorAll('md-backdrop').length).toBe(0);
     }));
 
     it('should focus `md-button.dialog-close` on open', inject(function($mdDialog, $rootScope, $document, $timeout) {
@@ -276,7 +273,7 @@ describe('$mdDialog', function() {
       $rootScope.$apply();
       $timeout.flush();
 
-      expect($document.activeElement).toBe(parent.find('.dialog-close')[0]);
+      expect($document.activeElement).toBe(parent[0].querySelector('.dialog-close'));
     }));
 
     it('should focus the last `md-button` in md-actions open if no `.dialog-close`', inject(function($mdDialog, $rootScope, $document, $timeout) {
@@ -297,7 +294,7 @@ describe('$mdDialog', function() {
       $rootScope.$apply();
       $timeout.flush();
 
-      expect($document.activeElement).toBe(parent.find('#focus-target')[0]);
+      expect($document.activeElement).toBe(parent[0].querySelector('#focus-target'));
     }));
 
     it('should only allow one open at a time', inject(function($mdDialog, $rootScope) {
@@ -308,8 +305,8 @@ describe('$mdDialog', function() {
       });
 
       $rootScope.$apply();
-      expect(parent.find('md-dialog.one').length).toBe(1);
-      expect(parent.find('md-dialog.two').length).toBe(0);
+      expect(parent[0].querySelectorAll('md-dialog.one').length).toBe(1);
+      expect(parent[0].querySelectorAll('md-dialog.two').length).toBe(0);
 
       $mdDialog.custom().show({
         template: '<md-dialog class="two">',
@@ -317,8 +314,8 @@ describe('$mdDialog', function() {
       });
 
       $rootScope.$apply();
-      expect(parent.find('md-dialog.one').length).toBe(0);
-      expect(parent.find('md-dialog.two').length).toBe(1);
+      expect(parent[0].querySelectorAll('md-dialog.one').length).toBe(0);
+      expect(parent[0].querySelectorAll('md-dialog.two').length).toBe(1);
     }));
 
     it('should have the dialog role', inject(function($mdDialog, $rootScope) {
@@ -332,7 +329,7 @@ describe('$mdDialog', function() {
 
       $rootScope.$apply();
 
-      var dialog = parent.find('md-dialog');
+      var dialog = angular.element(parent[0].querySelectorAll('md-dialog'));
       expect(dialog.attr('role')).toBe('dialog');
     }));
 
@@ -347,7 +344,7 @@ describe('$mdDialog', function() {
 
       $rootScope.$apply();
 
-      var dialog = parent.find('md-dialog');
+      var dialog = angular.element(parent[0].querySelector('md-dialog'));
       expect(dialog.attr('aria-label')).toEqual(dialog.text());
     }));
 
@@ -362,7 +359,7 @@ describe('$mdDialog', function() {
 
       $rootScope.$apply();
 
-      var dialog = parent.find('md-dialog');
+      var dialog = angular.element(parent[0].querySelector('md-dialog'));
       expect(dialog.attr('aria-label')).not.toEqual(dialog.text());
       expect(dialog.attr('aria-label')).toEqual('Some Other Thing');
     }));

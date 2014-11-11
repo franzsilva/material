@@ -52,9 +52,9 @@ describe('$$interimElement service', function() {
         }));
 
         it('forwards options to $mdCompiler', inject(function($$interimElement) {
-          var options = {template: 'testing'};
+          var options = {template: '<testing />'};
           Service.make().show(options);
-          expect($compilerSpy.mostRecentCall.args[0].template).toBe('testing');
+          expect($compilerSpy.mostRecentCall.args[0].template).toBe('<testing />');
         }));
 
         it('supports theming', inject(function($$interimElement, $rootScope) {
@@ -64,7 +64,7 @@ describe('$$interimElement service', function() {
         }));
 
         it('calls hide after hideDelay', inject(function($animate, $timeout, $rootScope) {
-          var hideSpy = spyOn(Service, 'hide').andCallThrough();
+          var hideSpy = spyOn(Service, 'cancel').andCallThrough();
           Service.make().show({hideDelay: 1000});
           $rootScope.$digest();
           $animate.triggerCallbacks();

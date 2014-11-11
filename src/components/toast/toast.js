@@ -6,7 +6,8 @@
  */
 angular.module('material.components.toast', [
   'material.services.interimElement',
-  'material.components.swipe'
+  'material.components.swipe',
+  'material.components.button'
 ])
   .directive('mdToast', [
     MdToastDirective
@@ -121,7 +122,9 @@ function MdToastDirective() {
 
 function MdToastService($timeout, $$interimElement, $animate, $mdSwipe, $mdTheming) {
 
+  var TOAST_CONFIG_OPTIONS = ['position', 'hideDelay'];
   var factoryDef = {
+    configMethods: TOAST_CONFIG_OPTIONS,
     onShow: onShow,
     onRemove: onRemove,
     position: 'bottom left',
@@ -130,7 +133,59 @@ function MdToastService($timeout, $$interimElement, $animate, $mdSwipe, $mdThemi
   };
 
   var $mdToast = $$interimElement(factoryDef);
-  return $mdToast;
+
+  var publicApi = {
+    custom: $mdToast.make,
+    basic: basicToast,
+    hide: $mdToast.hide,
+    cancel: $mdToast.cancel
+  };
+
+  return publicApi;
+
+  function basicToast(msg) {
+    var BASIC_TOAST_OPTIONS = ['content', 'action', 'highlightAction'];
+
+    var toastOptions = {
+      content: msg
+    };
+
+    var instance = $mdToast.make({
+      template: [
+        '<md-toast>',
+          '<span flex>{{ toast.content }}</span>',
+          '<md-button ng-if="toast.action" ng-click="toast.resolve()" ng-class="{\'md-action\': toast.highlightAction}">',
+            '{{toast.action}}',
+          '</md-button>',
+        '</md-toast>'
+      ].join(''),
+      controller: function mdToastCtrl() {
+        this.resolve = function() {
+          $mdToast.hide();
+        };
+      },
+      controllerAs: 'toast',
+      bindToController: true,
+      locals: toastOptions
+    });
+
+    var api = {
+      show: instance.show
+    };
+
+    TOAST_CONFIG_OPTIONS.forEach(function(method) {
+      api[method] = function() {
+        instance[method].apply(instance, arguments);
+        return api;
+      };
+    });
+
+    BASIC_TOAST_OPTIONS.forEach(function(method) {
+      api[method] = function(val) { toastOptions[method] = val; return api; };
+    });
+
+    return api;
+  }
 
   function onShow(scope, element, options) {
     // 'top left' -> 'md-top md-left'
@@ -143,7 +198,7 @@ function MdToastService($timeout, $$interimElement, $animate, $mdSwipe, $mdThemi
     options.detachSwipe = configureSwipe(element, function(ev) {
       //Add swipeleft/swiperight class to element so it can animate correctly
       element.addClass('md-' + ev.type);
-      $timeout($mdToast.hide);
+      $timeout($mdToast.cancel);
     });
 
     return $animate.enter(element, options.parent);
