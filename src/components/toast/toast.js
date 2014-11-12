@@ -1,3 +1,5 @@
+(function() {
+"use strict";
 /**
  * @ngdoc module
  * @name material.components.toast
@@ -5,20 +7,12 @@
  * Toast
  */
 angular.module('material.components.toast', [
-  'material.services.interimElement',
+  'material.core',
   'material.components.swipe',
   'material.components.button'
 ])
-  .directive('mdToast', [
-    MdToastDirective
-  ])
-  .factory('$mdToast', [
-    '$timeout',
-    '$$interimElement',
-    '$animate',
-    '$mdSwipe',
-    MdToastService
-  ]);
+  .directive('mdToast', MdToastDirective)
+  .provider('$mdToast', MdToastProvider);
 
 function MdToastDirective() {
   return {
@@ -54,7 +48,7 @@ function MdToastDirective() {
  * var app = angular.module('app', ['ngMaterial']);
  * app.controller('MyController', function($scope, $mdToast) {
  *   $scope.openToast = function($event) {
- *     $mdToast.basic('Hello!').show();
+ *     $mdToast.show($mdToast.simple().content('Hello!'));
  *   };
  * });
  * </hljs>
@@ -62,32 +56,37 @@ function MdToastDirective() {
 
  /**
  * @ngdoc method
- * @name $mdToast#basic
+ * @name $mdToast#simple
  *
  * @description
- * Builds a preconfigured toast with the specified message.
+ * Builds a preconfigured toast.
  *
- * @param {string} message A message to display
- * @returns {obj} a `$mdToastInstance` with the chainable configuration methods for shows' options (see below):
+ * @returns {obj} a `$mdToastPreset` with the chainable configuration methods:
+ *
+ * - $mdToastPreset#content(string) - sets toast content to string
+ * - $mdToastPreset#action(string) - adds an action button, which resolves the promise returned from `show()` if clicked.
+ * - $mdToastPreset#highlightAction(boolean) - sets action button to be highlighted
+ * - $mdToastPreset#capsule(boolean) - adds 'md-capsule' class to the toast (curved corners)
  */
 
  /**
  * @ngdoc method
- * @name $mdToast#custom
+ * @name $mdToast#build
  *
  * @description
- * Creates a custom `$mdToastInstance` that you can configure.
+ * Creates a custom `$mdToastPreset` that you can configure.
  *
- * @returns {obj} a `$mdToastInstance` with the chainable configuration methods for shows' options (see below):
+ * @returns {obj} a `$mdToastPreset` with the chainable configuration methods for shows' options (see below).
  */
 
  /**
  * @ngdoc method
- * @name $mdToastInstance#show
+ * @name $mdToast#show
  *
  * @description Shows the toast.
  *
- * @param {object} options An options object, with the following properties:
+ * @param {object} optionsOrPreset Either provide an `$mdToastPreset` returned from `simple()` 
+ * and `build()`, or an options object with the following properties:
  *
  *   - `templateUrl` - `{string=}`: The url of an html template file that will
  *     be used as the content of the toast. Restrictions: the template must
@@ -95,7 +94,7 @@ function MdToastDirective() {
  *   - `template` - `{string=}`: Same as templateUrl, except this is an actual
  *     template string.
  *   - `hideDelay` - `{number=}`: How many milliseconds the toast should stay
- *     active before automatically closing.  Set to 0 or false to have the toast stay open until 
+ *     active before automatically closing.  Set to 0 or false to have the toast stay open until
  *     closed manually. Default: 3000.
  *   - `position` - `{string=}`: Where to place the toast. Available: any combination
  *     of 'bottom', 'left', 'top', 'right', 'fit'. Default: 'bottom left'.
@@ -119,7 +118,7 @@ function MdToastDirective() {
  * @name $mdToast#hide
  *
  * @description
- * Hide an existing toast and resolve the promise returned from `$mdToastInstance.show()`.
+ * Hide an existing toast and resolve the promise returned from `$mdToast.show()`.
  *
  * @param {*=} response An argument for the resolved promise.
  *
@@ -130,105 +129,82 @@ function MdToastDirective() {
  * @name $mdToast#cancel
  *
  * @description
- * Hide the existing toast and reject the promise returned from 
- * `$mdToastInstance.show()`.
+ * Hide the existing toast and reject the promise returned from
+ * `$mdToast.show()`.
  *
  * @param {*=} response An argument for the rejected promise.
  *
  */
 
-function MdToastService($timeout, $$interimElement, $animate, $mdSwipe, $mdTheming) {
+function MdToastProvider($$interimElementProvider) {
 
-  var TOAST_CONFIG_OPTIONS = ['position', 'hideDelay'];
-  var factoryDef = {
-    configMethods: TOAST_CONFIG_OPTIONS,
-    onShow: onShow,
-    onRemove: onRemove,
-    position: 'bottom left',
-    themable: true,
-    hideDelay: 3000
-  };
-
-  var $mdToast = $$interimElement(factoryDef);
-
-  var publicApi = {
-    custom: $mdToast.make,
-    basic: basicToast,
-    hide: $mdToast.hide,
-    cancel: $mdToast.cancel
-  };
-
-  return publicApi;
-
-  function basicToast(msg) {
-    var BASIC_TOAST_OPTIONS = ['content', 'action', 'highlightAction'];
-
-    var toastOptions = {
-      content: msg
-    };
-
-    var instance = $mdToast.make({
-      template: [
-        '<md-toast>',
-          '<span flex>{{ toast.content }}</span>',
-          '<md-button ng-if="toast.action" ng-click="toast.resolve()" ng-class="{\'md-action\': toast.highlightAction}">',
-            '{{toast.action}}',
-          '</md-button>',
-        '</md-toast>'
-      ].join(''),
-      controller: function mdToastCtrl() {
-        this.resolve = function() {
-          $mdToast.hide();
+  return $$interimElementProvider('$mdToast')
+    .setDefaults({
+      methods: ['position', 'hideDelay', 'capsule'],
+      options: toastDefaultOptions
+    })
+    .addPreset('simple', {
+      methods: ['content', 'action', 'highlightAction'],
+      options: /* @ngInject */ function($mdToast) {
+        return {
+          template: [
+            '<md-toast ng-class="{\'md-capsule\': toast.capsule}">',
+              '<span flex>{{ toast.content }}</span>',
+              '<md-button ng-if="toast.action" ng-click="toast.resolve()" ng-class="{\'md-action\': toast.highlightAction}">',
+                '{{toast.action}}',
+              '</md-button>',
+            '</md-toast>'
+          ].join(''),
+          controller: function mdToastCtrl() {
+            this.resolve = function() {
+              $mdToast.hide();
+            };
+          },
+          controllerAs: 'toast',
+          bindToController: true
         };
-      },
-      controllerAs: 'toast',
-      bindToController: true,
-      locals: toastOptions
+      }
     });
 
-    var api = {
-      show: instance.show
+  /* @ngInject */
+  function toastDefaultOptions($timeout, $animate, $mdSwipe, $mdTheming, $mdToast) {
+    return {
+      onShow: onShow,
+      onRemove: onRemove,
+      position: 'bottom left',
+      themable: true,
+      hideDelay: 3000
     };
 
-    TOAST_CONFIG_OPTIONS.forEach(function(method) {
-      api[method] = function() {
-        instance[method].apply(instance, arguments);
-        return api;
-      };
-    });
+    function onShow(scope, element, options) {
+      // 'top left' -> 'md-top md-left'
+      element.addClass(options.position.split(' ').map(function(pos) {
+        return 'md-' + pos;
+      }).join(' '));
+      options.parent.addClass(toastOpenClass(options.position));
 
-    BASIC_TOAST_OPTIONS.forEach(function(method) {
-      api[method] = function(val) { toastOptions[method] = val; return api; };
-    });
+      var configureSwipe = $mdSwipe(scope, 'swipeleft swiperight');
+      options.detachSwipe = configureSwipe(element, function(ev) {
+        //Add swipeleft/swiperight class to element so it can animate correctly
+        element.addClass('md-' + ev.type);
+        $timeout($mdToast.cancel);
+      });
 
-    return api;
+      return $animate.enter(element, options.parent);
+    }
+
+    function onRemove(scope, element, options) {
+      options.detachSwipe();
+      options.parent.removeClass(toastOpenClass(options.position));
+      return $animate.leave(element);
+    }
+
+    function toastOpenClass(position) {
+      return 'md-toast-open-' +
+        (position.indexOf('top') > -1 ? 'top' : 'bottom');
+    }
   }
 
-  function onShow(scope, element, options) {
-    // 'top left' -> 'md-top md-left'
-    element.addClass(options.position.split(' ').map(function(pos) {
-      return 'md-' + pos;
-    }).join(' '));
-    options.parent.addClass(toastOpenClass(options.position));
-
-    var configureSwipe = $mdSwipe(scope, 'swipeleft swiperight');
-    options.detachSwipe = configureSwipe(element, function(ev) {
-      //Add swipeleft/swiperight class to element so it can animate correctly
-      element.addClass('md-' + ev.type);
-      $timeout($mdToast.cancel);
-    });
-
-    return $animate.enter(element, options.parent);
-  }
-
-  function onRemove(scope, element, options) {
-    options.detachSwipe();
-    options.parent.removeClass(toastOpenClass(options.position));
-    return $animate.leave(element);
-  }
-
-  function toastOpenClass(position) {
-    return 'md-toast-open-' +
-      (position.indexOf('top') > -1 ? 'top' : 'bottom');
-  }
 }
+
+})();

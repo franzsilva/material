@@ -1,10 +1,8 @@
-angular.module('material.services.aria', [])
+(function() {
+"use strict";
+angular.module('material.core')
 
-.service('$mdAria', [
-  '$$rAF',
-  '$log',
-  AriaService
-]);
+.service('$mdAria', AriaService);
 
 function AriaService($$rAF, $log) {
 
@@ -50,3 +48,4 @@ function AriaService($$rAF, $log) {
   }
 
 }
+})();

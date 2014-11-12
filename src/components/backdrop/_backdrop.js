@@ -1,3 +1,5 @@
+(function() {
+"use strict";
 /*
  * @ngdoc module
  * @name material.components.backdrop
@@ -16,8 +18,9 @@
  * Apply class `opaque` to make the backdrop use the theme backdrop color.
  *
  */
+
 angular.module('material.components.backdrop', [
-  'material.services.theming'
+  'material.core'
 ])
 .directive('mdBackdrop', [
   '$mdTheming',
@@ -27,3 +30,4 @@ angular.module('material.components.backdrop', [
 function BackdropDirective($mdTheming) {
   return $mdTheming;
 }
+})();

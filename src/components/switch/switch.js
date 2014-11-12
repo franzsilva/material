@@ -1,3 +1,5 @@
+(function() {
+"use strict";
 /**
  * @private
  * @ngdoc module
@@ -6,8 +8,7 @@
 
 angular.module('material.components.switch', [
   'material.components.checkbox',
-  'material.components.radioButton',
-  'material.services.theming'
+  'material.components.radioButton'
 ])
 
 .directive('mdSwitch', [
@@ -83,3 +84,4 @@ function MdSwitch(checkboxDirectives, radioButtonDirectives, $mdTheming) {
     };
   }
 }
+})();

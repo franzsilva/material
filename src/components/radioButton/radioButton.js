@@ -1,3 +1,5 @@
+(function() {
+"use strict";
 
 /**
  * @ngdoc module
@@ -5,23 +7,10 @@
  * @description radioButton module!
  */
 angular.module('material.components.radioButton', [
-  'material.core',
-  'material.animations',
-  'material.services.aria',
-  'material.services.theming'
+  'material.core'
 ])
-  .directive('mdRadioGroup', [
-    '$mdUtil',
-    '$mdConstant',
-    '$mdTheming',
-    mdRadioGroupDirective
-  ])
-  .directive('mdRadioButton', [
-    '$mdAria',
-    '$mdUtil',
-    '$mdTheming',
-    mdRadioButtonDirective
-  ]);
+  .directive('mdRadioGroup', mdRadioGroupDirective)
+  .directive('mdRadioButton', mdRadioButtonDirective);
 
 /**
  * @ngdoc directive
@@ -272,4 +261,4 @@ function mdRadioButtonDirective($mdAria, $mdUtil, $mdTheming) {
   }
 }
 
-
+})();

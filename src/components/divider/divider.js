@@ -1,17 +1,14 @@
+(function() {
+"use strict";
 /**
  * @ngdoc module
  * @name material.components.divider
  * @description Divider module!
  */
 angular.module('material.components.divider', [
-  'material.animations',
-  'material.services.aria',
-  'material.services.theming'
+  'material.core'
 ])
-.directive('mdDivider', [
-  '$mdTheming',
-  MdDividerDirective
-]);
+.directive('mdDivider', MdDividerDirective);
 
 function MdDividerController(){}
 
@@ -40,3 +37,4 @@ function MdDividerDirective($mdTheming) {
     controller: [MdDividerController]
   };
 }
+})();

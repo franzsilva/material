@@ -5,24 +5,30 @@ describe('$mdToast service', function() {
   function setup(options) {
     inject(function($mdToast, $rootScope, $animate) {
       options = options || {};
-      $mdToast.custom().show(options);
+      $mdToast.show(options);
       $rootScope.$apply();
       $animate.triggerCallbacks();
     });
   }
 
-  describe('basic()', function() {
-    hasConfigMethods(['content', 'action']);
+  describe('simple()', function() {
+    hasConfigMethods(['content', 'action', 'capsule', 'highlightAction']);
 
-    it('supports a basic toast', inject(function($mdToast, $rootScope, $timeout, $animate) {
+    iit('supports a basic toast', inject(function($mdToast, $rootScope, $timeout, $animate) {
       var rejected = false;
       var parent = angular.element('<div>');
-      $mdToast.basic('Do something')
-      .show({parent: parent}).then(undefined, function() {
+      $mdToast.show(
+        $mdToast.simple({
+          parent: parent,
+          content: 'Do something',
+          capsule: true
+        })
+      ).catch(function() {
         rejected = true;
       });
       $rootScope.$digest();
       expect(parent.find('span').text()).toBe('Do something');
+      expect(parent.find('md-toast')).toHaveClass('md-capsule');
       $animate.triggerCallbacks();
       $timeout.flush();
       $animate.triggerCallbacks();
@@ -32,10 +38,14 @@ describe('$mdToast service', function() {
     it('supports an action toast', inject(function($mdToast, $rootScope, $timeout, $animate) {
       var resolved = false;
       var parent = angular.element('<div>');
-      $mdToast.basic('Do something')
-        .action('Click me')
-        .highlightAction(true)
-      .show({parent: parent}).then(function() {
+      $mdToast.show(
+        $mdToast.simple({
+          content: 'Do something',
+          parent: parent
+        })
+          .action('Click me')
+          .highlightAction(true)
+      ).then(function() {
         resolved = true;
       });
       $rootScope.$digest();
@@ -51,7 +61,7 @@ describe('$mdToast service', function() {
     function hasConfigMethods(methods) {
       angular.forEach(methods, function(method) {
         return it('supports config method #' + method, inject(function($mdToast) {
-          var basic = $mdToast.basic();
+          var basic = $mdToast.simple();
           expect(typeof basic[method]).toBe('function');
           expect(basic[method]()).toBe(basic);
         }));
@@ -59,7 +69,7 @@ describe('$mdToast service', function() {
     }
   });
 
-  describe('custom()', function() {
+  describe('build()', function() {
     describe('options', function() {
       it('should hide current toast when showing new one', inject(function($rootElement) {
         setup({

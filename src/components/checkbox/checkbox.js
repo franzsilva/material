@@ -1,13 +1,12 @@
+(function() {
+"use strict";
 /**
  * @ngdoc module
  * @name material.components.checkbox
  * @description Checkbox module!
  */
 angular.module('material.components.checkbox', [
-  'material.core',
-  'material.animations',
-  'material.services.theming',
-  'material.services.aria'
+  'material.core'
 ])
   .directive('mdCheckbox', [ 
     'inputDirective',
@@ -135,4 +134,4 @@ function MdCheckboxDirective(inputDirectives, $mdInkRipple, $mdAria, $mdConstant
   }
 }
 
-
+})();

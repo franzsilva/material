@@ -1,39 +1,37 @@
 angular.module('dialogDemo1', ['ngMaterial'])
 
-  .controller('AppCtrl', function($scope, $mdDialog) {
-    $scope.alert = '';
+.controller('AppCtrl', function($scope, $mdDialog) {
+  $scope.alert = '';
 
   $scope.alertDialog = function(ev) {
-    $mdDialog.alert()
-      .title('This is an alert')
-      .content('You can specify some description text in here')
-      .ariaLabel('Password notification')
-      .ok('Got it!')
-      .targetEvent(ev)
-    .show().then(function() {
-      $scope.alert = "Alert was dismissed";
-    });
+    $mdDialog.show(
+      $mdDialog.alert()
+        .content('You can specify some description text in here.')
+        .ariaLabel('Password notification')
+        .ok('Got it!')
+        .targetEvent(ev)
+    );
   };
 
   $scope.confirmDialog = function(ev) {
-    $mdDialog.confirm()
-      .title('Would you like to delete your debt?')
-      .content('All of the banks have agreed to drop all debt you have accumulated')
-      .ariaLabel('Lucky day')
-      .ok('Please do it!')
-      .cancel('Sounds like a scam')
-      .targetEvent(ev)
-    .show().then(function() {
-      $scope.alert = 'You decided to get rid of your debt';
+    $mdDialog.show(
+      $mdDialog.confirm()
+        .title('Would you like to delete your debt?')
+        .content('All of the banks have agreed to forgive you your debts.')
+        .ariaLabel('Lucky day')
+        .ok('Please do it!')
+        .cancel('Sounds like a scam')
+        .targetEvent(ev)
+    ).then(function() {
+      $scope.alert = 'You decided to get rid of your debt.';
     }, function() {
-      $scope.alert = 'You decided to keep your debt';
+      $scope.alert = 'You decided to keep your debt.';
     });
   };
 
   $scope.dialogAdvanced = function(ev) {
-    $mdDialog.custom()
-      .controller(DialogController)
-    .show({
+    $mdDialog.show({
+      controller: DialogController,
       templateUrl: 'dialog1.tmpl.html',
       targetEvent: ev,
     })

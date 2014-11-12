@@ -1,26 +1,14 @@
-/*
- * @ngdoc module
- * @name material.services.compiler
- * @description compiler service
- */
-angular.module('material.services.compiler', [
-])
-  .service('$mdCompiler', [
-    '$q',
-    '$http',
-    '$injector',
-    '$compile',
-    '$controller',
-    '$templateCache',
-    mdCompilerService
-  ]);
+(function() {
+"use strict";
+angular.module('material.core')
+  .service('$mdCompiler', mdCompilerService);
 
 function mdCompilerService($q, $http, $injector, $compile, $controller, $templateCache) {
 
   /*
    * @ngdoc service
    * @name $mdCompiler
-   * @module material.services.compiler
+   * @module material.core
    * @description
    * The $mdCompiler service is an abstraction of angular's compiler, that allows the developer
    * to easily compile an element with a templateUrl, controller, and locals.
@@ -98,9 +86,7 @@ function mdCompilerService($q, $http, $injector, $compile, $controller, $templat
     });
     //Add the locals, which are just straight values to inject
     //eg locals: { three: 3 }, will inject three into the controller
-    if (!bindToController) {
-      angular.extend(resolve, locals);
-    }
+    angular.extend(resolve, locals);
 
     if (templateUrl) {
       resolve.$template = $http.get(templateUrl, {cache: $templateCache})
@@ -128,10 +114,8 @@ function mdCompilerService($q, $http, $injector, $compile, $controller, $templat
           //Instantiate controller if it exists, because we have scope
           if (controller) {
             var ctrl = $controller(controller, locals);
-            if (bindToController && options.locals) {
-              angular.forEach(options.locals, function(val, key) {
-                ctrl[key] = val;
-              });
+            if (bindToController) {
+              angular.extend(ctrl, locals);
             }
             //See angular-route source for this logic
             element.data('$ngControllerController', ctrl);
@@ -149,3 +133,4 @@ function mdCompilerService($q, $http, $injector, $compile, $controller, $templat
 
   };
 }
+})();
