@@ -1,27 +1,35 @@
 Documentation
 -------------
 
-Uses [dgeni](http://github.com/angular/dgeni), the wonderful documentation generator built by [@petebacondarwin](https://github.com/petebacondarwin).
+The Angular Material **Live Docs** are generated from the source code and demos; and, in fact, the
+Live Docs actually use the Angular Material components and themes.
 
-To view docs:
+> Our build process uses **[dgeni](https://github.com/angular/dgeni)**, the wonderful documentation
+generator built by [Pete Bacon Darwin](https://github.com/petebacondarwin).
 
-1. `gulp docs`, which builds the docs to `dist/docs`
-2. `cd dist/docs` and start an http server (e.g. `python -m SimpleHTTPServer`)
-3. Navigate to the server, and enjoy (e.g. http://localhost:8000)
+To view the Live Docs (locally):
 
-> Another solution is to use `npm install -g httpster` and then launch the HTTP server with with the command
-```sh
-httpster -p 8000 -d ./dist/docs
-```
+1. Install the dependencies using `npm install`
+2. Install the dependencies using `bower install`
+3. Build the docs using `gulp docs`
+4. Run `gulp watch` to auto-rebuild docs (optional)
+5. Start an HTTP Server; the example below uses port 8080
+6. Open browser at `http://localhost:8080`
 
-Then run `gulp watch` to watch and rebuild docs on every save.
+```bash
+# Build & deploy docs to `dist/docs`
+gulp docs
 
-#### Easy Debugging
+# Watch source dirs for changes and rebuild
+gulp watch
 
-Debugging directly in the Docs is complicated due to iFrames and multiple demos loading and initializing.
+# Use the built-in gulp server with live reload
+gulp server
 
-To open a demo outside of the Doc iframe(s), just navigate to component demo directly. For example, to debug the Toolbar demo and code, browser navigate to:
+# Alternatively, install httpster globally; if not already installed
+npm install -g httpster
 
-```sh
-http://localhost:8000/generated/material.components.toolbar/demo/demo1/index.html
+# And then launch the webserver
+# NOTE: unlike `gulp server` this will not auto-reload the HTML
+httpster -p 8080 -d ./dist/docs
 ```
